@@ -1,5 +1,9 @@
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
+const startupScreen = document.getElementById("startupScreen");
+const gameTitle = document.getElementById("gameTitle");
+const startPauseBtn = document.getElementById("startPauseBtn");
+const startPauseBtnMobile = document.getElementById("startPauseBtnMobile");
 
 let ballRadius = 10;
 let x = canvas.width / 2;
@@ -15,8 +19,8 @@ let rightPressed = false;
 let leftPressed = false;
 
 let brickRowCount = 5;
-let brickColumnCount = 3;
-let brickWidth = canvas.width / brickColumnCount - 10; // Adjust to fit evenly
+let brickColumnCount = 30;
+let brickWidth = canvas.width / brickColumnCount - 10;
 let brickHeight = 20;
 let brickPadding = 10;
 let brickOffsetTop = 30;
@@ -26,13 +30,14 @@ let bricks = [];
 let level = 1;
 let score = 0;
 let lives = 3;
+let gameRunning = false;
 
 function resizeCanvas() {
   canvas.width = window.innerWidth * 0.9;
   canvas.height = window.innerHeight * 0.6;
   paddleWidth = canvas.width * 0.2;
   paddleX = (canvas.width - paddleWidth) / 2;
-  brickWidth = canvas.width / brickColumnCount - brickPadding; // Recalculate brick width
+  brickWidth = canvas.width / brickColumnCount - brickPadding;
 }
 
 window.addEventListener("resize", resizeCanvas);
@@ -110,6 +115,26 @@ document
 document.getElementById("rightArrow").addEventListener("touchend", function () {
   rightPressed = false;
 });
+
+function toggleGame() {
+  if (gameRunning) {
+    // Pause the game
+    gameRunning = false;
+    startPauseBtn.textContent = "Start";
+    startPauseBtnMobile.textContent = "Start";
+  } else {
+    // Start the game
+    gameRunning = true;
+    startPauseBtn.textContent = "Pause";
+    startPauseBtnMobile.textContent = "Pause";
+    startupScreen.style.display = "none"; // Hide the startup screen
+    gameTitle.classList.add("small"); // Shrink the title
+    draw();
+  }
+}
+
+startPauseBtn.addEventListener("click", toggleGame);
+startPauseBtnMobile.addEventListener("click", toggleGame);
 
 function drawBall() {
   ctx.beginPath();
@@ -200,6 +225,9 @@ function levelUp() {
 }
 
 function draw() {
+  if (!gameRunning) {
+    return;
+  }
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   drawBricks();
   drawBall();
@@ -220,6 +248,7 @@ function draw() {
     } else {
       lives--;
       if (!lives) {
+        alert("GAME OVER");
         document.location.reload();
       } else {
         x = canvas.width / 2;
@@ -239,7 +268,6 @@ function draw() {
 
   x += dx;
   y += dy;
+
   requestAnimationFrame(draw);
 }
-
-draw();
